@@ -25,7 +25,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "darkplaces.h"
 
 #define GAMENAME "id1"
-#define STARTCONFIGFILENAME "quake.rc"
+//#define STARTCONFIGFILENAME "quake.rc"
+#define STARTCONFIGFILENAME "metal.rc"
 #define CONFIGFILENAME "config.cfg"
 
 // moveflags values

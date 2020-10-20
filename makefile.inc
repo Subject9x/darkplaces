@@ -291,8 +291,14 @@ WINDRES ?= windres
 # see LDFLAGS_WINCOMMON in makefile
 LDFLAGS_WINSV=$(LDFLAGS_WINCOMMON) $(LIB_CRYPTO) $(LIB_CRYPTO_RIJNDAEL) -mconsole -lwinmm -lws2_32 $(LIB_Z) $(LIB_JPEG)
 LDFLAGS_WINSDL=$(LDFLAGS_WINCOMMON) $(LIB_CRYPTO) $(LIB_CRYPTO_RIJNDAEL) $(LDFLAGS_UNIXSDL) -lwinmm -lws2_32 $(LIB_Z) $(LIB_JPEG) $(LIB_SND_XMP)
-EXE_WINSV=darkplaces-dedicated.exe
-EXE_WINSDL=darkplaces-sdl.exe
+
+#original exe names
+#EXE_WINSV=darkplaces-dedicated.exe
+#EXE_WINSDL=darkplaces-sdl.exe
+#darkMETAL
+EXE_WINSV=battleMETAL-dedicated.exe
+EXE_WINSDL=battleMETAL.exe
+
 EXE_WINSVNEXUIZ=nexuiz-dedicated.exe
 EXE_WINSDLNEXUIZ=nexuiz-sdl.exe
 

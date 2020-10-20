@@ -298,6 +298,7 @@ typedef enum gamemode_e
 	GAME_MOONHELM,
 	GAME_VORETOURNAMENT,
 	GAME_DOOMBRINGER, // added by Cloudwalk for kristus
+	GAME_BATTLEMETAL,	//added by Subject9x for battleMETAL
 	GAME_COUNT
 }
 gamemode_t;
