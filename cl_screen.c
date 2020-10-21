@@ -49,6 +49,7 @@ cvar_t scr_loadingscreen_firstforstartup = {CF_CLIENT, "scr_loadingscreen_firstf
 cvar_t scr_loadingscreen_barcolor = {CF_CLIENT, "scr_loadingscreen_barcolor", "0 0 1", "rgb color of loadingscreen progress bar"};
 cvar_t scr_loadingscreen_barheight = {CF_CLIENT, "scr_loadingscreen_barheight", "8", "the height of the loadingscreen progress bar"};
 cvar_t scr_loadingscreen_maxfps = {CF_CLIENT, "scr_loadingscreen_maxfps", "10", "restrict maximal FPS for loading screen so it will not update very often (this will make lesser loading times on a maps loading large number of models)"};
+cvar_t scr_loadingscreen_showtext = {CF_CLIENT, "scr_loadingscreen_showtext", "1", "shows loading screen text items overlaid on the loading bar at bottom of screen."};
 cvar_t scr_infobar_height = {CF_CLIENT, "scr_infobar_height", "8", "the height of the infobar items"};
 cvar_t vid_conwidthauto = {CF_CLIENT | CF_ARCHIVE, "vid_conwidthauto", "1", "automatically update vid_conwidth to match aspect ratio"};
 cvar_t vid_conwidth = {CF_CLIENT | CF_ARCHIVE, "vid_conwidth", "640", "virtual width of 2D graphics system (note: changes may be overwritten, see vid_conwidthauto)"};
@@ -792,6 +793,7 @@ void CL_Screen_Init(void)
 	Cvar_RegisterVariable (&scr_loadingscreen_barcolor);
 	Cvar_RegisterVariable (&scr_loadingscreen_barheight);
 	Cvar_RegisterVariable (&scr_loadingscreen_maxfps);
+	Cvar_RegisterVariable (&scr_loadingscreen_showtext);
 	Cvar_RegisterVariable (&scr_infobar_height);
 	Cvar_RegisterVariable (&scr_showram);
 	Cvar_RegisterVariable (&scr_showturtle);
@@ -1899,7 +1901,8 @@ static float SCR_DrawLoadingStack_r(loadingscreenstack_t *s, float y, float size
 			x = (vid_conwidth.integer - DrawQ_TextWidth(s->msg, len, size, size, true, FONT_INFOBAR)) / 2;
 			y -= size;
 			DrawQ_Fill(0, y, vid_conwidth.integer, size, 0, 0, 0, 1, 0);
-			DrawQ_String(x, y, s->msg, len, size, size, 1, 1, 1, 1, 0, NULL, true, FONT_INFOBAR);
+			if(scr_loadingscreen_showtext.integer)
+				DrawQ_String(x, y, s->msg, len, size, size, 1, 1, 1, 1, 0, NULL, true, FONT_INFOBAR);	//hard disable here - Subject9x
 			total += size;
 		}
 	}
@@ -1910,7 +1913,8 @@ static float SCR_DrawLoadingStack_r(loadingscreenstack_t *s, float y, float size
 		x = (vid_conwidth.integer - DrawQ_TextWidth(s->msg, len, size, size, true, FONT_INFOBAR)) / 2;
 		y -= size;
 		DrawQ_Fill(0, y, vid_conwidth.integer, size, 0, 0, 0, 1, 0);
-		DrawQ_String(x, y, s->msg, len, size, size, 1, 1, 1, 1, 0, NULL, true, FONT_INFOBAR);
+		if(scr_loadingscreen_showtext.integer)
+			DrawQ_String(x, y, s->msg, len, size, size, 1, 1, 1, 1, 0, NULL, true, FONT_INFOBAR);	//hard disable here - Subject9x
 		total += size;
 	}
 #endif
