@@ -241,12 +241,14 @@ ifeq ($(DP_MAKE_TARGET), mingw)
 	EXE_SDLNEXUIZ=$(EXE_WINSDLNEXUIZ)
 
 	DP_LINK_SDL?=shared
-	DP_LINK_ZLIB?=dlopen
+	#DP_LINK_ZLIB?=dlopen
+	DP_LINK_ZLIB?=shared
 	DP_LINK_JPEG?=shared
 	DP_LINK_ODE?=dlopen
 	DP_LINK_CRYPTO?=dlopen
 	DP_LINK_CRYPTO_RIJNDAEL?=dlopen
 	DP_LINK_XMP?=dlopen
+	DP_LINK_PNG?=dlopen
 endif
 
 # set these to "" if you want to use dynamic loading instead
@@ -275,6 +277,16 @@ endif
 ifeq ($(DP_LINK_JPEG), dlopen)
 	CFLAGS_LIBJPEG=
 	LIB_JPEG=
+endif
+
+# png
+ifeq ($(DP_LINK_PNG), shared)
+	CFLAGS_LIBPNG=-DLINK_TO_LIBPNG
+	LIB_PNG=-lpng
+endif
+ifeq ($(DP_LINK_PNG), dlopen)
+	CFLAGS_LIBPNG=
+	LIB_PNG=
 endif
 
 # ode
