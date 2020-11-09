@@ -167,6 +167,21 @@ static void Host_Framerate_c(cvar_t *var)
 		Cvar_SetValueQuick(var, 0);
 }
 
+// TODO: Find a better home for this.
+static void SendCvar_f(cmd_state_t *cmd)
+{
+	if(cmd->source == src_local && host.hook.SV_SendCvar)
+	{
+		host.hook.SV_SendCvar(cmd);
+		return;
+	}
+	if(cmd->source == src_client && host.hook.CL_SendCvar)
+	{
+		host.hook.CL_SendCvar(cmd);
+		return;
+	}
+}
+
 /*
 =======================
 Host_InitLocal
@@ -182,6 +197,7 @@ static void Host_InitLocal (void)
 	Cmd_AddCommand(CF_SHARED, "version", Host_Version_f, "print engine version");
 	Cmd_AddCommand(CF_SHARED, "saveconfig", Host_SaveConfig_f, "save settings to config.cfg (or a specified filename) immediately (also automatic when quitting)");
 	Cmd_AddCommand(CF_SHARED, "loadconfig", Host_LoadConfig_f, "reset everything and reload configs");
+	Cmd_AddCommand(CF_SHARED, "sendcvar", SendCvar_f, "sends the value of a cvar to the server as a sentcvar command, for use by QuakeC");
 	Cvar_RegisterVariable (&cl_maxphysicsframesperserverframe);
 	Cvar_RegisterVariable (&host_framerate);
 	Cvar_RegisterCallback (&host_framerate, Host_Framerate_c);
@@ -277,10 +293,10 @@ void Host_LoadConfig_f(cmd_state_t *cmd)
 	Cmd_RestoreInitState();
 #ifdef CONFIG_MENU
 	// prepend a menu restart command to execute after the config
-	Cbuf_InsertText(&cmd_client, "\nmenu_restart\n");
+	Cbuf_InsertText(&cmd_local, "\nmenu_restart\n");
 #endif
 	// reset cvars to their defaults, and then exec startup scripts again
-	Host_AddConfigText(&cmd_client);
+	Host_AddConfigText(&cmd_local);
 }
 
 //============================================================================
@@ -299,9 +315,9 @@ static void Host_GetConsoleCommands (void)
 	while ((line = Sys_ConsoleInput()))
 	{
 		if (cls.state == ca_dedicated)
-			Cbuf_AddText(&cmd_server, line);
+			Cbuf_AddText(&cmd_local, line);
 		else
-			Cbuf_AddText(&cmd_client, line);
+			Cbuf_AddText(&cmd_local, line);
 	}
 }
 
@@ -542,7 +558,7 @@ static void Host_Init (void)
 	int i;
 	const char* os;
 	char vabuf[1024];
-	cmd_state_t *cmd = &cmd_client;
+	cmd_state_t *cmd = &cmd_local;
 
 	host.hook.ConnectLocal = NULL;
 	host.hook.Disconnect = NULL;
@@ -684,8 +700,8 @@ static void Host_Init (void)
 	if (i && i + 1 < sys.argc)
 	if (!sv.active && !cls.demoplayback && !cls.connect_trying)
 	{
-		Cbuf_AddText(&cmd_client, va(vabuf, sizeof(vabuf), "timedemo %s\n", sys.argv[i + 1]));
-		Cbuf_Execute((&cmd_client)->cbuf);
+		Cbuf_AddText(&cmd_local, va(vabuf, sizeof(vabuf), "timedemo %s\n", sys.argv[i + 1]));
+		Cbuf_Execute((&cmd_local)->cbuf);
 	}
 
 	// check for special demo mode
@@ -694,8 +710,8 @@ static void Host_Init (void)
 	if (i && i + 1 < sys.argc)
 	if (!sv.active && !cls.demoplayback && !cls.connect_trying)
 	{
-		Cbuf_AddText(&cmd_client, va(vabuf, sizeof(vabuf), "playdemo %s\n", sys.argv[i + 1]));
-		Cbuf_Execute((&cmd_client)->cbuf);
+		Cbuf_AddText(&cmd_local, va(vabuf, sizeof(vabuf), "playdemo %s\n", sys.argv[i + 1]));
+		Cbuf_Execute((&cmd_local)->cbuf);
 	}
 
 #ifdef CONFIG_VIDEO_CAPTURE
@@ -704,24 +720,24 @@ static void Host_Init (void)
 	if (i && i + 1 < sys.argc)
 	if (!sv.active && !cls.demoplayback && !cls.connect_trying)
 	{
-		Cbuf_AddText(&cmd_client, va(vabuf, sizeof(vabuf), "playdemo %s\ncl_capturevideo 1\n", sys.argv[i + 1]));
-		Cbuf_Execute((&cmd_client)->cbuf);
+		Cbuf_AddText(&cmd_local, va(vabuf, sizeof(vabuf), "playdemo %s\ncl_capturevideo 1\n", sys.argv[i + 1]));
+		Cbuf_Execute((&cmd_local)->cbuf);
 	}
 #endif
 
 	if (cls.state == ca_dedicated || Sys_CheckParm("-listen"))
 	if (!sv.active && !cls.demoplayback && !cls.connect_trying)
 	{
-		Cbuf_AddText(&cmd_client, "startmap_dm\n");
-		Cbuf_Execute((&cmd_client)->cbuf);
+		Cbuf_AddText(&cmd_local, "startmap_dm\n");
+		Cbuf_Execute((&cmd_local)->cbuf);
 	}
 
 	if (!sv.active && !cls.demoplayback && !cls.connect_trying)
 	{
 #ifdef CONFIG_MENU
-		Cbuf_AddText(&cmd_client, "togglemenu 1\n");
+		Cbuf_AddText(&cmd_local, "togglemenu 1\n");
 #endif
-		Cbuf_Execute((&cmd_client)->cbuf);
+		Cbuf_Execute((&cmd_local)->cbuf);
 	}
 
 	Con_DPrint("========Initialized=========\n");

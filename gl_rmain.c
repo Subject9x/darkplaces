@@ -3189,7 +3189,7 @@ static void gl_main_shutdown(void)
 	r_texture_numcubemaps = 0;
 	//r_texture_fogintensity = NULL;
 	memset(&r_fb, 0, sizeof(r_fb));
-	R_GLSL_Restart_f(&cmd_client);
+	R_GLSL_Restart_f(&cmd_local);
 
 	r_glsl_permutation = NULL;
 	memset(r_glsl_permutationhash, 0, sizeof(r_glsl_permutationhash));
@@ -4071,7 +4071,7 @@ static void R_View_UpdateEntityVisible (void)
 		for (i = 0;i < r_refdef.scene.numentities;i++)
 		{
 			ent = r_refdef.scene.entities[i];
-			if (ent != &cl.viewent.render && r_refdef.viewcache.world_novis)
+			if (r_refdef.viewcache.world_novis && !(ent->flags & RENDER_VIEWMODEL))
 			{
 				r_refdef.viewcache.entityvisible[i] = false;
 				continue;
@@ -5681,7 +5681,7 @@ void R_RenderView(int fbo, rtexture_t *depthtexture, rtexture_t *colortexture, i
 	rsurface.entity = NULL; // used only by R_GetCurrentTexture and RSurf_ActiveModelEntity
 
 	if(R_CompileShader_CheckStaticParms())
-		R_GLSL_Restart_f(&cmd_client);
+		R_GLSL_Restart_f(&cmd_local);
 
 	if (!r_drawentities.integer)
 		r_refdef.scene.numentities = 0;
@@ -10017,26 +10017,6 @@ void R_DrawModelSurfaces(entity_render_t *ent, qbool skysurfaces, qbool writedep
 	surfaces = model->data_surfaces;
 	update = model->brushq1.lightmapupdateflags;
 
-	// update light styles
-	if (!skysurfaces && !depthonly && !prepass && model->brushq1.num_lightstyles && r_refdef.scene.lightmapintensity > 0)
-	{
-		model_brush_lightstyleinfo_t *style;
-		// Iterate over each active style
-		for (i = 0, style = model->brushq1.data_lightstyleinfo;i < model->brushq1.num_lightstyles;i++, style++)
-		{
-			if (style->value != r_refdef.scene.lightstylevalue[style->style])
-			{
-				int *list = style->surfacelist;
-				style->value = r_refdef.scene.lightstylevalue[style->style];
-				// Iterate over every surface this style applies to
-				for (j = 0;j < style->numsurfaces;j++)
-					// Update brush entities even if not visible otherwise they'll render solid black.
-					if(r_refdef.viewcache.world_surfacevisible[list[j]] || ent != r_refdef.scene.worldentity)
-						update[list[j]] = true;
-			}
-		}
-	}
-
 	flagsmask = skysurfaces ? MATERIALFLAG_SKY : MATERIALFLAG_WALL;
 
 	if (debug)
@@ -10055,6 +10035,25 @@ void R_DrawModelSurfaces(entity_render_t *ent, qbool skysurfaces, qbool writedep
 	// add visible surfaces to draw list
 	if (ent == r_refdef.scene.worldentity)
 	{
+		// update light styles
+		if (!skysurfaces && !depthonly && !prepass && model->brushq1.num_lightstyles && r_refdef.scene.lightmapintensity > 0)
+		{
+			model_brush_lightstyleinfo_t *style;
+			// Iterate over each active style
+			for (i = 0, style = model->brushq1.data_lightstyleinfo;i < model->brushq1.num_lightstyles;i++, style++)
+			{
+				if (style->value != r_refdef.scene.lightstylevalue[style->style])
+				{
+					int *list = style->surfacelist;
+					style->value = r_refdef.scene.lightstylevalue[style->style];
+					// Iterate over every surface this style applies to
+					for (j = 0;j < style->numsurfaces;j++)
+						// Update brush entities even if not visible otherwise they'll render solid black.
+						if(r_refdef.viewcache.world_surfacevisible[list[j]])
+							update[list[j]] = true;
+				}
+			}
+		}
 		// for the world entity, check surfacevisible
 		for (i = 0;i < model->nummodelsurfaces;i++)
 		{
@@ -10071,6 +10070,23 @@ void R_DrawModelSurfaces(entity_render_t *ent, qbool skysurfaces, qbool writedep
 	}
 	else
 	{
+		// update light styles
+		if (!skysurfaces && !depthonly && !prepass && model->brushq1.num_lightstyles && r_refdef.scene.lightmapintensity > 0)
+		{
+			model_brush_lightstyleinfo_t *style;
+			// Iterate over each active style
+			for (i = 0, style = model->brushq1.data_lightstyleinfo;i < model->brushq1.num_lightstyles;i++, style++)
+			{
+				if (style->value != r_refdef.scene.lightstylevalue[style->style])
+				{
+					int *list = style->surfacelist;
+					style->value = r_refdef.scene.lightstylevalue[style->style];
+					// Iterate over every surface this style applies to
+					for (j = 0;j < style->numsurfaces;j++)
+						update[list[j]] = true;
+				}
+			}
+		}
 		// add all surfaces
 		for (i = 0; i < model->nummodelsurfaces; i++)
 			r_surfacelist[numsurfacelist++] = surfaces + model->sortedmodelsurfaces[i];
