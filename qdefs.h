@@ -152,7 +152,7 @@
 #define	MAX_BINDMAPS			8
 #define	MAX_PARTICLES_INITIAL	8192 ///< initial allocation for cl.particles
 #define	MAX_PARTICLES			1048576 ///< upper limit on cl.particles size
-#define	MAX_ENTITIES_INITIAL		256 ///< initial size of cl.entities
+#define	MAX_ENTITIES_INITIAL		512 /// 256 < initial size of cl.entities
 #define	MAX_STATICENTITIES		4096 ///< limit on size of cl.static_entities
 #define	MAX_EFFECTS				512 ///< limit on size of cl.effects -> was 256
 #define	MAX_BEAMS				512 ///< limit on size of cl.beams -> was 256
