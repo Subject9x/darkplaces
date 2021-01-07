@@ -244,7 +244,7 @@ CFLAGS_UNIX_PRELOAD=-DPREFER_PRELOAD
 
 LDFLAGS_UNIXSDL=$(SDL_LIBS) #-lGLESv2
 EXE_UNIXSV=battlemetal-dedicated
-EXE_UNIXSDL=battlemetal-sdl
+EXE_UNIXSDL=battlemetal
 EXE_UNIXSVNEXUIZ=nexuiz-dedicated
 EXE_UNIXSDLNEXUIZ=nexuiz-sdl
 
@@ -292,7 +292,7 @@ WINDRES ?= windres
 LDFLAGS_WINSV=$(LDFLAGS_WINCOMMON) $(LIB_CRYPTO) $(LIB_CRYPTO_RIJNDAEL) -mconsole -lwinmm -lws2_32 $(LIB_Z) $(LIB_JPEG)
 LDFLAGS_WINSDL=$(LDFLAGS_WINCOMMON) $(LIB_CRYPTO) $(LIB_CRYPTO_RIJNDAEL) $(LDFLAGS_UNIXSDL) -lwinmm -lws2_32 $(LIB_Z) $(LIB_JPEG) $(LIB_SND_XMP)
 EXE_WINSV=battlemetal-dedicated.exe
-EXE_WINSDL=battlemetal-sdl.exe
+EXE_WINSDL=battlemetal.exe
 EXE_WINSVNEXUIZ=nexuiz-dedicated.exe
 EXE_WINSDLNEXUIZ=nexuiz-sdl.exe
 
